@@ -42,40 +42,42 @@ import { useDataStore } from '@/stores/dataStore'
 import type { CompanyProfile, Quotation, QuotationBankDetails, QuotationCompanyInfo } from '@/types'
 
 const ICODED_COMPANY: QuotationCompanyInfo = {
-  name: 'iCoded Automation Pvt Ltd',
+  name: 'ICODED AUTOMATION PRIVATE LIMITED',
+  tagline: 'Building Business Through Technology',
   address: 'Nisha Pride, 2nd Floor, Mondha Naka',
-  city: 'Chhatrapati Sambhajinagar - 431006, Maharashtra',
-  phone: '+91 98765 43210',
-  email: 'info@icodedautomation.com',
+  city: 'Chh. Sambhajinagar, Maharashtra - 431006',
+  phone: '+91 93703 29233',
+  email: 'company.icoded@gmail.com',
   website: 'www.icodedautomation.com',
   instagram: '@icodedautomation',
-  taxId: '',
+  taxId: '27ABCDE1234F1Z5',
   logoUrl: '/company_logo1.jpeg',
   about:
-    'iCoded Automation Pvt Ltd is a leading software development company with 55+ successful software products delivered and 70+ satisfied clients across India. We specialize in Android & iOS App Development, Web Development, Custom Software Development, Digital Marketing, Social Media Management, Content Creation, SEO, and Business Automation Solutions. We transform your ideas into powerful digital products.',
+    'iCoded Automation Pvt Ltd is a leading software development company with 85+ successful software products delivered and 70+ satisfied clients across India. We specialize in Web Development, App Development, Custom Software Development, Digital Marketing, and Business Automation Solutions, transforming ideas into powerful digital products.',
 }
 
 const BLANK_BANK: QuotationBankDetails = {
-  bankName: '',
-  accountName: '',
-  accountNumber: '',
-  ifscCode: '',
-  branchName: '',
+  bankName: 'Kotak Mahindra Bank',
+  accountName: 'Rameshwar Narayan Shinde',
+  accountNumber: '5647820806',
+  ifscCode: 'KKBK0001946',
+  branchName: 'Chh. Sambhajinagar',
   upiId: '',
 }
 
 function profileToCompanyInfo(p: CompanyProfile): QuotationCompanyInfo {
   return {
-    name: p.name,
-    address: p.address,
-    city: p.city,
-    phone: p.phone,
-    email: p.email,
-    website: p.website,
-    instagram: p.instagram ?? '',
-    logoUrl: p.logoUrl,
-    taxId: p.taxId,
-    about: p.about,
+    name: p.name || 'ICODED AUTOMATION PRIVATE LIMITED',
+    tagline: (p as any).tagline || 'Building Business Through Technology',
+    address: p.address || 'Nisha Pride, 2nd Floor, Mondha Naka',
+    city: p.city || 'Chh. Sambhajinagar, Maharashtra',
+    phone: p.phone || '+91 93703 29233',
+    email: p.email || 'company.icoded@gmail.com',
+    website: p.website || 'www.icodedautomation.com',
+    instagram: p.instagram ?? '@icodedautomation',
+    logoUrl: p.logoUrl || '/company_logo1.jpeg',
+    taxId: p.taxId || '27ABCDE1234F1Z5',
+    about: p.about || ICODED_COMPANY.about,
   }
 }
 
@@ -110,25 +112,74 @@ function makeBlank(
   bank: QuotationBankDetails,
   quotationNumber: string,
 ): Omit<Quotation, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'> {
+  const defaultItems = [
+    {
+      id: generateId(),
+      moduleName: 'E-Commerce Website Development (Storefront + Admin Panel)',
+      description: 'Custom responsive online store with modern catalog & admin panel',
+      quantity: 1,
+      unitPrice: 95000,
+    },
+    {
+      id: generateId(),
+      moduleName: 'Product Catalog, Cart & Checkout Module',
+      description: 'Category filters, cart management, address selection & order summary',
+      quantity: 1,
+      unitPrice: 0,
+    },
+    {
+      id: generateId(),
+      moduleName: 'Payment Gateway Integration (Razorpay / UPI / COD)',
+      description: 'Secure online payment processing and COD handling',
+      quantity: 1,
+      unitPrice: 0,
+    },
+    {
+      id: generateId(),
+      moduleName: 'Admin Dashboard (Products, Orders, Inventory)',
+      description: 'Complete back-office control panel for products and sales analytics',
+      quantity: 1,
+      unitPrice: 0,
+    },
+    {
+      id: generateId(),
+      moduleName: 'Domain Charges',
+      description: '1-Year .com/.in Domain Registration',
+      quantity: 1,
+      unitPrice: 950,
+    },
+    {
+      id: generateId(),
+      moduleName: 'VPS Hosting KVM 2',
+      description: 'High-speed cloud server with SSD storage and automated backups',
+      quantity: 1,
+      unitPrice: 13154,
+    },
+  ]
+
+  const { subtotal, discountAmount, taxAmount, grandTotal } = calcQuotationTotals(defaultItems, 0, 0)
+
   return {
     quotationNumber,
+    version: '1.0',
+    salesPerson: userName || 'Abhishek Parekar (Sales Executive)',
     status: 'draft',
     theme: 'modern',
-    accentColor: '#4f46e5',
+    accentColor: '#1D4ED8',
     company,
     client: { salutation: 'Mr.', name: '', company: '', address: '', city: '', phone: '', email: '' },
     bankDetails: bank,
-    showBankDetails: Object.values(bank).some((v) => v !== ''),
+    showBankDetails: true,
     issueDate: new Date().toISOString().slice(0, 10),
     validUntil: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
     projectTimelineDays: 30,
-    items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
+    items: defaultItems,
     discountPercent: 0,
-    taxPercent: 18,
-    subtotal: 0,
-    discountAmount: 0,
-    taxAmount: 0,
-    grandTotal: 0,
+    taxPercent: 0,
+    subtotal,
+    discountAmount,
+    taxAmount,
+    grandTotal,
     currency: 'INR',
     notes: 'Thank you for giving us the opportunity to quote. We look forward to working with you.',
     selectedTerms: DEFAULT_SELECTED_TERMS,
@@ -529,11 +580,68 @@ export function QuotationsPage() {
         )}
       </Card>
 
-      {/* Builder Modal */}
+      {/* Builder & Live Paper Preview Modal */}
       {builderOpen && draft && (
         <Modal open={builderOpen} onClose={handleCancel} title={editing ? 'Edit Quotation ' + draft.quotationNumber : 'New Quotation ' + draft.quotationNumber} size="xl">
           <div className="space-y-4">
-            <QuotationBuilder value={draft} onChange={setDraft} />
+            {/* Top Action Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-500">Live Paper Generator</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-500 text-white">
+                  Realtime Sync
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Button type="button" variant="secondary" className="h-8 text-xs font-bold gap-1.5" onClick={handleDownloadPDF}>
+                  <Download className="h-3.5 w-3.5 text-brand-600 dark:text-brand-400" /> Save PDF
+                </Button>
+
+                <Button type="button" variant="secondary" className="h-8 text-xs font-bold gap-1.5" onClick={() => window.print()}>
+                  🖨️ Print
+                </Button>
+
+                {draft.client.phone && (
+                  <Button 
+                    type="button"
+                    className="h-8 text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white" 
+                    onClick={() => {
+                      const cleanPhone = draft.client.phone.replace(/[^0-9]/g, '')
+                      const msg = `Hello ${draft.client.name}, Please review Quotation ${draft.quotationNumber} for ${draft.company.name}. Total: ${formatCurrency(draft.grandTotal, draft.currency)}`
+                      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank')
+                    }}
+                  >
+                    💬 WhatsApp
+                  </Button>
+                )}
+
+                <Button type="button" onClick={handleSave} loading={saving} className="h-8 bg-gradient-to-r from-brand-600 to-violet-600 text-white font-bold px-4 text-xs shadow-md shadow-brand-500/20">
+                  {editing ? 'Save Changes' : 'Save Quotation'}
+                </Button>
+              </div>
+            </div>
+
+            {/* Split Screen Layout: Form on Left, Live Paper Preview on Right */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Left Column: Form Fillup */}
+              <div className="lg:col-span-6 max-h-[75vh] overflow-y-auto pr-2 space-y-4">
+                <QuotationBuilder value={draft} onChange={setDraft} />
+              </div>
+
+              {/* Right Column: Live Paper Preview */}
+              <div className="lg:col-span-6 max-h-[75vh] overflow-y-auto bg-slate-100 dark:bg-slate-900/50 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div className="text-xs font-bold text-slate-500 mb-2 flex items-center justify-between px-1">
+                  <span>📄 Live Paper Document Preview</span>
+                  <span className="text-[10px] text-slate-400 font-mono">Updates live as you type</span>
+                </div>
+                <div ref={printRef} className="scale-95 origin-top">
+                  <QuotationPreview quotation={draft} />
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Actions */}
             <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
               <Button type="button" variant="secondary" onClick={handleCancel} className="px-4 text-xs font-bold">
                 Cancel
