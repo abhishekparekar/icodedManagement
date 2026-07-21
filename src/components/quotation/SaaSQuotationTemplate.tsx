@@ -10,14 +10,15 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
   const { items, currency, discountPercent, taxPercent } = q
   const { subtotal, discountAmount, taxAmount, grandTotal } = calcQuotationTotals(items, discountPercent, taxPercent)
 
-  const hosting = q.hostingCharges ?? 13154
-  const domain = q.domainCharges ?? 950
-  const finalGrandTotal = grandTotal > 0 ? grandTotal : subtotal + hosting + domain - discountAmount + taxAmount
+  const hosting = q.hostingCharges ?? 0
+  const domain = q.domainCharges ?? 0
+  const other = q.otherCharges ?? 0
+  const finalGrandTotal = grandTotal > 0 ? grandTotal : subtotal + hosting + domain + other - discountAmount + taxAmount
 
   return (
     <div
       ref={ref}
-      className="saas-quotation-wrapper w-full bg-[#EAEEF4] text-[#1E293B] font-sans p-2 sm:p-6 space-y-8 select-none"
+      className="saas-quotation-wrapper w-full bg-[#EAEEF4] text-[#1E293B] font-sans p-1 sm:p-6 space-y-6 sm:space-y-8 select-none"
       style={{ fontFamily: "'Inter', 'Plus Jakarta Sans', system-ui, sans-serif" }}
     >
       <style>{`
@@ -46,45 +47,45 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
       {/* ────────────────────────────────────────────────────────────────── */}
       {/* PAGE 1: COVER & QUOTATION SUMMARY & INVESTMENT TABLE              */}
       {/* ────────────────────────────────────────────────────────────────── */}
-      <div className="quotation-page bg-white w-full max-w-[850px] mx-auto p-8 sm:p-12 shadow-xl border border-[#D1D5DB] rounded-none sm:rounded-lg space-y-7 text-[#1E293B] relative min-h-[1080px] flex flex-col justify-between">
-        <div className="space-y-6">
+      <div className="quotation-page bg-white w-full max-w-[850px] mx-auto p-4 sm:p-10 shadow-xl border border-[#D1D5DB] rounded-xl sm:rounded-lg space-y-6 text-[#1E293B] relative min-h-[1050px] flex flex-col justify-between overflow-x-hidden">
+        <div className="space-y-5 sm:space-y-6">
           
           {/* Top Logo & Company Info Header */}
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">
             <div>
               <img
                 src={q.company.logoUrl || '/company_logo1.jpeg'}
                 onError={(e) => {
                   ;(e.target as HTMLImageElement).src = '/company_logo1.jpeg'
                 }}
-                alt="iCoded Automation Logo"
-                className="h-16 sm:h-20 w-auto object-contain"
+                alt="Company Logo"
+                className="h-14 sm:h-20 w-auto object-contain max-w-[200px]"
               />
             </div>
 
-            <div className="text-right text-xs text-[#475569] space-y-0.5 leading-tight font-medium">
+            <div className="text-left sm:text-right text-xs text-[#475569] space-y-0.5 leading-tight font-medium">
               <h2 className="text-sm font-black text-[#0F172A] tracking-wider uppercase mb-1">
                 {q.company.name || 'ICODED AUTOMATION PVT LTD'}
               </h2>
-              <p>{q.company.address || 'Nisha Pride, 2nd Floor, Mondha Naka'}</p>
-              <p>{q.company.city || 'Chh. Sambhajinagar, Maharashtra'}</p>
-              <p>{q.company.email || 'company.icoded@gmail.com'}</p>
-              <p>{q.company.phone || '+91 93703 29233'}</p>
+              {q.company.address && <p>{q.company.address}</p>}
+              {q.company.city && <p>{q.company.city}</p>}
+              {q.company.email && <p>{q.company.email}</p>}
+              {q.company.phone && <p>{q.company.phone}</p>}
             </div>
           </div>
 
           {/* Blue Top Divider Bar */}
-          <div className="h-3 w-full bg-[#1D4ED8] rounded-xs" />
+          <div className="h-2.5 sm:h-3 w-full bg-[#1D4ED8] rounded-xs" />
 
           {/* Quotation Title & Date/Valid Until Box */}
-          <div className="flex items-start justify-between gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pt-1">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black tracking-wider text-[#0F172A] uppercase">
                 QUOTATION
               </h1>
             </div>
 
-            <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg p-3 px-6 text-xs text-right space-y-1 shrink-0">
+            <div className="w-full sm:w-auto bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg p-3 px-5 text-xs text-left sm:text-right space-y-1 shrink-0">
               <div className="flex justify-between gap-6 font-bold text-[#475569]">
                 <span>DATE</span>
                 <span className="text-[#0F172A] font-mono">{formatDate(q.issueDate)}</span>
@@ -97,16 +98,20 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
           </div>
 
           {/* Prepared For & Project Timeline Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 pt-2 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-6 pt-1 text-xs">
             <div className="sm:col-span-8 space-y-1">
               <p className="font-black uppercase text-[#1D4ED8] tracking-wider text-[11px]">PREPARED FOR</p>
               <p className="text-sm font-black text-[#0F172A]">{q.client.name || '[Client Name]'}</p>
-              <p className="font-semibold text-[#475569]">
-                [{q.client.company || 'Client Company Name'}] • [{q.client.city || 'Client City'}]
-              </p>
-              <p className="font-medium text-[#64748B]">
-                [{q.client.email || 'client email'}] • [{q.client.phone || 'client phone'}]
-              </p>
+              {(q.client.company || q.client.city) && (
+                <p className="font-semibold text-[#475569]">
+                  {q.client.company ? `[${q.client.company}]` : ''} {q.client.city ? `• [${q.client.city}]` : ''}
+                </p>
+              )}
+              {(q.client.email || q.client.phone) && (
+                <p className="font-medium text-[#64748B]">
+                  {q.client.email ? `[${q.client.email}]` : ''} {q.client.phone ? `• [${q.client.phone}]` : ''}
+                </p>
+              )}
             </div>
 
             <div className="sm:col-span-4 space-y-1 text-left sm:text-right">
@@ -117,22 +122,23 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
           </div>
 
           {/* About Us */}
-          <div className="space-y-1 pt-1 text-xs">
-            <p className="font-black uppercase text-[#1D4ED8] tracking-wider text-[11px]">ABOUT US</p>
-            <p className="text-[#334155] leading-relaxed font-normal">
-              {q.company.about ||
-                'iCoded Automation Pvt Ltd is a leading software development company with 85+ successful software products delivered and 70+ satisfied clients across India. We specialize in Web Development, App Development, Custom Software Development, Digital Marketing, and Business Automation Solutions, transforming ideas into powerful digital products.'}
-            </p>
-          </div>
+          {q.company.about && (
+            <div className="space-y-1 pt-1 text-xs">
+              <p className="font-black uppercase text-[#1D4ED8] tracking-wider text-[11px]">ABOUT US</p>
+              <p className="text-[#334155] leading-relaxed font-normal">
+                {q.company.about}
+              </p>
+            </div>
+          )}
 
           {/* Project Investment Table */}
-          <div className="space-y-2 pt-2">
+          <div className="space-y-2 pt-1">
             <h3 className="font-black uppercase text-[#1D4ED8] tracking-wider text-xs border-b border-[#E2E8F0] pb-1">
               PROJECT INVESTMENT
             </h3>
 
-            <div className="overflow-hidden border border-[#CBD5E1]">
-              <table className="w-full text-xs text-[#1E293B] border-collapse">
+            <div className="overflow-x-auto rounded-lg border border-[#CBD5E1]">
+              <table className="w-full text-xs text-[#1E293B] border-collapse min-w-[500px]">
                 <thead>
                   <tr className="bg-[#1D4ED8] text-white font-black uppercase text-[11px]">
                     <th className="py-2.5 px-4 text-left border-r border-blue-600">DESCRIPTION</th>
@@ -145,7 +151,7 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
                   {items.map((item, idx) => (
                     <tr key={item.id || idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#F8FAFC]'}>
                       <td className="py-2.5 px-4 font-bold text-[#0F172A] border-r border-[#E2E8F0]">
-                        {item.moduleName || item.description}
+                        {item.moduleName || item.description || `Item #${idx + 1}`}
                       </td>
                       <td className="py-2.5 px-2 text-center font-bold font-mono border-r border-[#E2E8F0]">
                         {item.quantity}
@@ -162,50 +168,62 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
               </table>
 
               {/* Total Project Investment Banner */}
-              <div className="bg-[#1D4ED8] text-white px-5 py-3 flex items-center justify-between font-black text-xs">
+              <div className="bg-[#1D4ED8] text-white px-4 sm:px-5 py-3 flex items-center justify-between font-black text-xs">
                 <span className="uppercase tracking-wider">TOTAL PROJECT INVESTMENT</span>
-                <span className="text-base font-mono">₹{finalGrandTotal.toLocaleString('en-IN')}.00</span>
+                <span className="text-sm sm:text-base font-mono">{formatCurrency(finalGrandTotal, currency)}</span>
               </div>
             </div>
           </div>
 
           {/* Payment / Bank Details Container */}
-          <div className="space-y-2 pt-2">
-            <h3 className="font-black uppercase text-[#1D4ED8] tracking-wider text-xs border-b border-[#E2E8F0] pb-1">
-              PAYMENT / BANK DETAILS
-            </h3>
+          {q.bankDetails && (q.bankDetails.bankName || q.bankDetails.accountNumber) && (
+            <div className="space-y-2 pt-1">
+              <h3 className="font-black uppercase text-[#1D4ED8] tracking-wider text-xs border-b border-[#E2E8F0] pb-1">
+                PAYMENT / BANK DETAILS
+              </h3>
 
-            <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-md p-4 text-xs font-semibold text-[#1E293B]">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-8">
-                <div className="flex justify-between sm:justify-start sm:gap-6">
-                  <span className="font-bold text-[#64748B] w-32 shrink-0">BANK NAME</span>
-                  <span className="font-extrabold text-[#0F172A]">{q.bankDetails.bankName || 'Kotak Mahindra Bank'}</span>
-                </div>
-                <div className="flex justify-between sm:justify-start sm:gap-6">
-                  <span className="font-bold text-[#64748B] w-32 shrink-0">ACCOUNT NAME</span>
-                  <span className="font-extrabold text-[#0F172A]">{q.bankDetails.accountName || 'Rameshwar Narayan Shinde'}</span>
-                </div>
-                <div className="flex justify-between sm:justify-start sm:gap-6">
-                  <span className="font-bold text-[#64748B] w-32 shrink-0">ACCOUNT NUMBER</span>
-                  <span className="font-mono font-extrabold text-[#0F172A]">{q.bankDetails.accountNumber || '5647820806'}</span>
-                </div>
-                <div className="flex justify-between sm:justify-start sm:gap-6">
-                  <span className="font-bold text-[#64748B] w-32 shrink-0">IFSC CODE</span>
-                  <span className="font-mono font-extrabold text-[#0F172A]">{q.bankDetails.ifscCode || 'KKBK0001946'}</span>
-                </div>
-                <div className="flex justify-between sm:justify-start sm:gap-6">
-                  <span className="font-bold text-[#64748B] w-32 shrink-0">BRANCH</span>
-                  <span className="font-extrabold text-[#0F172A]">{q.bankDetails.branchName || 'Chh. Sambhajinagar'}</span>
+              <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-md p-3.5 sm:p-4 text-xs font-semibold text-[#1E293B]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-8">
+                  {q.bankDetails.bankName && (
+                    <div className="flex justify-between sm:justify-start sm:gap-6">
+                      <span className="font-bold text-[#64748B] w-32 shrink-0">BANK NAME</span>
+                      <span className="font-extrabold text-[#0F172A]">{q.bankDetails.bankName}</span>
+                    </div>
+                  )}
+                  {q.bankDetails.accountName && (
+                    <div className="flex justify-between sm:justify-start sm:gap-6">
+                      <span className="font-bold text-[#64748B] w-32 shrink-0">ACCOUNT NAME</span>
+                      <span className="font-extrabold text-[#0F172A]">{q.bankDetails.accountName}</span>
+                    </div>
+                  )}
+                  {q.bankDetails.accountNumber && (
+                    <div className="flex justify-between sm:justify-start sm:gap-6">
+                      <span className="font-bold text-[#64748B] w-32 shrink-0">ACCOUNT NUMBER</span>
+                      <span className="font-mono font-extrabold text-[#0F172A]">{q.bankDetails.accountNumber}</span>
+                    </div>
+                  )}
+                  {q.bankDetails.ifscCode && (
+                    <div className="flex justify-between sm:justify-start sm:gap-6">
+                      <span className="font-bold text-[#64748B] w-32 shrink-0">IFSC CODE</span>
+                      <span className="font-mono font-extrabold text-[#0F172A]">{q.bankDetails.ifscCode}</span>
+                    </div>
+                  )}
+                  {q.bankDetails.branchName && (
+                    <div className="flex justify-between sm:justify-start sm:gap-6">
+                      <span className="font-bold text-[#64748B] w-32 shrink-0">BRANCH</span>
+                      <span className="font-extrabold text-[#0F172A]">{q.bankDetails.branchName}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
         </div>
 
         {/* Page 1 Footer */}
-        <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-[11px] font-semibold text-[#94A3B8]">
-          <span>iCoded Automation Pvt. Ltd. • Confidential Quotation</span>
+        <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-[10px] sm:text-[11px] font-semibold text-[#94A3B8]">
+          <span>{q.company.name || 'iCoded Automation Pvt. Ltd.'} • Confidential Quotation</span>
           <span>Page 1 of 5</span>
         </div>
       </div>
@@ -213,20 +231,20 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
       {/* ────────────────────────────────────────────────────────────────── */}
       {/* PAGE 2: TERMS & CONDITIONS                                        */}
       {/* ────────────────────────────────────────────────────────────────── */}
-      <div className="quotation-page bg-white w-full max-w-[850px] mx-auto p-8 sm:p-12 shadow-xl border border-[#D1D5DB] rounded-none sm:rounded-lg space-y-6 text-[#1E293B] relative min-h-[1080px] flex flex-col justify-between page-break">
-        <div className="space-y-6">
+      <div className="quotation-page bg-white w-full max-w-[850px] mx-auto p-4 sm:p-10 shadow-xl border border-[#D1D5DB] rounded-xl sm:rounded-lg space-y-6 text-[#1E293B] relative min-h-[1050px] flex flex-col justify-between overflow-x-hidden page-break">
+        <div className="space-y-5 sm:space-y-6">
           
           {/* Top Header */}
           <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
-            <img src={q.company.logoUrl || '/company_logo1.jpeg'} alt="Logo" className="h-10 w-auto object-contain" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#475569]">ICODED AUTOMATION PVT LTD</span>
+            <img src={q.company.logoUrl || '/company_logo1.jpeg'} alt="Logo" className="h-9 sm:h-10 w-auto object-contain" />
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#475569]">{q.company.name || 'ICODED AUTOMATION PVT LTD'}</span>
           </div>
 
-          <h2 className="text-lg font-black uppercase text-[#0F172A] tracking-wider border-b-2 border-[#1D4ED8] pb-1">
+          <h2 className="text-base sm:text-lg font-black uppercase text-[#0F172A] tracking-wider border-b-2 border-[#1D4ED8] pb-1">
             TERMS & CONDITIONS
           </h2>
 
-          <div className="space-y-5 text-xs text-[#334155] leading-relaxed">
+          <div className="space-y-4 sm:space-y-5 text-xs text-[#334155] leading-relaxed">
             
             {/* Payment Terms */}
             <div className="space-y-1.5">
@@ -303,7 +321,7 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
             </div>
 
             {/* Red Note */}
-            <div className="pt-2">
+            <div className="pt-1">
               <p className="text-red-600 font-bold text-xs">
                 Note: Domain and hosting charges are recurring annual expenses and are not included as a one-time cost. These services must be renewed every year to ensure the uninterrupted operation, security, and maintenance of the software.
               </p>
@@ -313,8 +331,8 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
         </div>
 
         {/* Page 2 Footer */}
-        <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-[11px] font-semibold text-[#94A3B8]">
-          <span>iCoded Automation Pvt. Ltd. • Confidential Quotation</span>
+        <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-[10px] sm:text-[11px] font-semibold text-[#94A3B8]">
+          <span>{q.company.name || 'iCoded Automation Pvt. Ltd.'} • Confidential Quotation</span>
           <span>Page 2 of 5</span>
         </div>
       </div>
@@ -322,16 +340,16 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
       {/* ────────────────────────────────────────────────────────────────── */}
       {/* PAGE 3: ADDITIONAL TERMS & MODULES COVERED                       */}
       {/* ────────────────────────────────────────────────────────────────── */}
-      <div className="quotation-page bg-white w-full max-w-[850px] mx-auto p-8 sm:p-12 shadow-xl border border-[#D1D5DB] rounded-none sm:rounded-lg space-y-6 text-[#1E293B] relative min-h-[1080px] flex flex-col justify-between page-break">
-        <div className="space-y-6">
+      <div className="quotation-page bg-white w-full max-w-[850px] mx-auto p-4 sm:p-10 shadow-xl border border-[#D1D5DB] rounded-xl sm:rounded-lg space-y-6 text-[#1E293B] relative min-h-[1050px] flex flex-col justify-between overflow-x-hidden page-break">
+        <div className="space-y-5 sm:space-y-6">
           
           {/* Top Header */}
           <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
-            <img src={q.company.logoUrl || '/company_logo1.jpeg'} alt="Logo" className="h-10 w-auto object-contain" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#475569]">ICODED AUTOMATION PVT LTD</span>
+            <img src={q.company.logoUrl || '/company_logo1.jpeg'} alt="Logo" className="h-9 sm:h-10 w-auto object-contain" />
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#475569]">{q.company.name || 'ICODED AUTOMATION PVT LTD'}</span>
           </div>
 
-          <h2 className="text-lg font-black uppercase text-[#0F172A] tracking-wider border-b-2 border-[#1D4ED8] pb-1">
+          <h2 className="text-base sm:text-lg font-black uppercase text-[#0F172A] tracking-wider border-b-2 border-[#1D4ED8] pb-1">
             ADDITIONAL TERMS
           </h2>
 
@@ -353,94 +371,26 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
           </div>
 
           {/* Modules Covered in this Project */}
-          <div className="space-y-3 pt-2 text-xs">
+          <div className="space-y-3 pt-1 text-xs">
             <h4 className="font-black uppercase text-[#1D4ED8] tracking-wider text-[11px]">MODULES COVERED IN THIS PROJECT</h4>
 
             <div className="space-y-3 text-[#334155]">
-              
-              <div>
-                <p className="font-black text-[#0F172A]">■ Home Page</p>
-                <ul className="list-disc pl-5 space-y-0.5 text-[#475569] font-medium pt-0.5">
-                  <li>Banner/offer carousel and promotional sections</li>
-                  <li>Featured, bestseller and new-arrival product sections</li>
-                  <li>Category-wise navigation menu</li>
-                </ul>
-              </div>
-
-              <div>
-                <p className="font-black text-[#0F172A]">■ Product Catalog & Listing</p>
-                <ul className="list-disc pl-5 space-y-0.5 text-[#475569] font-medium pt-0.5">
-                  <li>Category and sub-category pages</li>
-                  <li>Filters (price, size, availability) and sorting</li>
-                  <li>Search with auto-suggestions</li>
-                </ul>
-              </div>
-
-              <div>
-                <p className="font-black text-[#0F172A]">■ Product Detail Page</p>
-                <ul className="list-disc pl-5 space-y-0.5 text-[#475569] font-medium pt-0.5">
-                  <li>Multiple product images/gallery</li>
-                  <li>Variants (size, color, pack) with price change</li>
-                  <li>Stock status, ratings and customer reviews</li>
-                  <li>Related and "you may also like" products</li>
-                </ul>
-              </div>
-
-              <div>
-                <p className="font-black text-[#0F172A]">■ Cart & Checkout</p>
-                <ul className="list-disc pl-5 space-y-0.5 text-[#475569] font-medium pt-0.5">
-                  <li>Add to cart / update quantity / remove item</li>
-                  <li>Coupon and discount code application</li>
-                  <li>Address entry and saved addresses</li>
-                  <li>Order summary with tax and shipping calculation</li>
-                </ul>
-              </div>
-
-              <div>
-                <p className="font-black text-[#0F172A]">■ Payments</p>
-                <ul className="list-disc pl-5 space-y-0.5 text-[#475569] font-medium pt-0.5">
-                  <li>Razorpay / UPI online payment integration</li>
-                  <li>Cash on Delivery (COD) option</li>
-                  <li>Payment success/failure handling and order confirmation</li>
-                </ul>
-              </div>
-
-              <div>
-                <p className="font-black text-[#0F172A]">■ Customer Account</p>
-                <ul className="list-disc pl-5 space-y-0.5 text-[#475569] font-medium pt-0.5">
-                  <li>OTP/email-based login and signup</li>
-                  <li>Order history and order tracking status</li>
-                  <li>Wishlist management</li>
-                  <li>Saved addresses and profile details</li>
-                </ul>
-              </div>
-
-              <div>
-                <p className="font-black text-[#0F172A]">■ Admin Dashboard</p>
-                <ul className="list-disc pl-5 space-y-0.5 text-[#475569] font-medium pt-0.5">
-                  <li>Product, category and inventory management</li>
-                  <li>Order management with status updates</li>
-                  <li>Coupon and offer management</li>
-                  <li>Customer list and basic sales reports</li>
-                </ul>
-              </div>
-
-              <div>
-                <p className="font-black text-[#0F172A]">■ Notifications</p>
-                <ul className="list-disc pl-5 space-y-0.5 text-[#475569] font-medium pt-0.5">
-                  <li>Order confirmation and status update emails</li>
-                  <li>Low-stock alerts for admin</li>
-                </ul>
-              </div>
-
+              {items.map((item, idx) => (
+                <div key={item.id || idx}>
+                  <p className="font-black text-[#0F172A]">■ {item.moduleName || `Module #${idx + 1}`}</p>
+                  {item.description && (
+                    <p className="pl-4 text-[#475569] font-medium pt-0.5 whitespace-pre-wrap">{item.description}</p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
         </div>
 
         {/* Page 3 Footer */}
-        <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-[11px] font-semibold text-[#94A3B8]">
-          <span>iCoded Automation Pvt. Ltd. • Confidential Quotation</span>
+        <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-[10px] sm:text-[11px] font-semibold text-[#94A3B8]">
+          <span>{q.company.name || 'iCoded Automation Pvt. Ltd.'} • Confidential Quotation</span>
           <span>Page 3 of 5</span>
         </div>
       </div>
@@ -448,16 +398,16 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
       {/* ────────────────────────────────────────────────────────────────── */}
       {/* PAGE 4 & 5: TECHNOLOGY STACK & SIGNATORY                          */}
       {/* ────────────────────────────────────────────────────────────────── */}
-      <div className="quotation-page bg-white w-full max-w-[850px] mx-auto p-8 sm:p-12 shadow-xl border border-[#D1D5DB] rounded-none sm:rounded-lg space-y-8 text-[#1E293B] relative min-h-[1080px] flex flex-col justify-between">
+      <div className="quotation-page bg-white w-full max-w-[850px] mx-auto p-4 sm:p-10 shadow-xl border border-[#D1D5DB] rounded-xl sm:rounded-lg space-y-6 text-[#1E293B] relative min-h-[1050px] flex flex-col justify-between overflow-x-hidden">
         <div className="space-y-6">
           
           {/* Top Header */}
           <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
-            <img src={q.company.logoUrl || '/company_logo1.jpeg'} alt="Logo" className="h-10 w-auto object-contain" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#475569]">ICODED AUTOMATION PVT LTD</span>
+            <img src={q.company.logoUrl || '/company_logo1.jpeg'} alt="Logo" className="h-9 sm:h-10 w-auto object-contain" />
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#475569]">{q.company.name || 'ICODED AUTOMATION PVT LTD'}</span>
           </div>
 
-          <h2 className="text-lg font-black uppercase text-[#0F172A] tracking-wider border-b-2 border-[#1D4ED8] pb-1">
+          <h2 className="text-base sm:text-lg font-black uppercase text-[#0F172A] tracking-wider border-b-2 border-[#1D4ED8] pb-1">
             TECHNOLOGY STACK
           </h2>
 
@@ -516,8 +466,8 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
               We appreciate the opportunity to work with you and look forward to building a platform that helps grow your business.
             </p>
 
-            <div className="pt-10 space-y-1">
-              <p className="text-xs font-black text-[#0F172A]">For iCoded Automation</p>
+            <div className="pt-8 space-y-1">
+              <p className="text-xs font-black text-[#0F172A]">For {q.company.name || 'iCoded Automation'}</p>
               <p className="text-xs font-bold text-[#64748B] pt-8">Authorized Signatory</p>
             </div>
           </div>
@@ -525,8 +475,8 @@ export const SaaSQuotationTemplate = forwardRef<HTMLDivElement, Props>(({ quotat
         </div>
 
         {/* Page 5 Footer */}
-        <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-[11px] font-semibold text-[#94A3B8]">
-          <span>iCoded Automation Pvt. Ltd. • Confidential Quotation</span>
+        <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-[10px] sm:text-[11px] font-semibold text-[#94A3B8]">
+          <span>{q.company.name || 'iCoded Automation Pvt. Ltd.'} • Confidential Quotation</span>
           <span>Page 5 of 5</span>
         </div>
       </div>
