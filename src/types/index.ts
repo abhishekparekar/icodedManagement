@@ -57,12 +57,10 @@ export interface QuotationBankDetails {
   ifscCode: string
   branchName: string
   upiId: string
-  qrCodeUrl?: string
 }
 
 export interface QuotationCompanyInfo {
   name: string
-  tagline?: string
   address: string
   city: string
   phone: string
@@ -71,32 +69,23 @@ export interface QuotationCompanyInfo {
   instagram?: string
   logoUrl?: string
   taxId?: string
-  gstNumber?: string
-  cinNumber?: string
-  panNumber?: string
-  about?: string
+  about?: string          // company tagline / about shown on quotation
 }
 
 export interface QuotationClientInfo {
-  salutation: string
+  salutation: string      // Mr. / Mrs. / Ms. / Dr. / M/s.
   name: string
   company: string
-  contactPerson?: string
-  designation?: string
   address: string
   city: string
-  state?: string
-  country?: string
   phone: string
   email: string
-  gstNumber?: string
 }
 
 export interface Quotation {
   id: string
   tenantId: string
   quotationNumber: string
-  version?: string
   status: QuotationStatus
   theme: QuotationTheme
   accentColor: string
@@ -106,26 +95,14 @@ export interface Quotation {
   showBankDetails: boolean
   issueDate: string
   validUntil: string
-  projectName?: string
-  projectCategory?: string
   projectTimelineDays: number
-  technologyStack?: string
-  platform?: string
-  salesPerson?: string
-  projectManager?: string
   items: QuotationLineItem[]
   discountPercent: number
   taxPercent: number
-  hostingCharges?: number
-  domainCharges?: number
-  otherCharges?: number
   subtotal: number
   discountAmount: number
   taxAmount: number
   grandTotal: number
-  advancePercent?: number
-  advanceAmount?: number
-  remainingAmount?: number
   currency: string
   notes: string
   selectedTerms: string[]

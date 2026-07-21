@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { CURRENCIES } from '@/lib/constants'
+import { ACCENT_COLORS, CURRENCIES, QUOTATION_THEMES } from '@/lib/constants'
 import { TERMS_CATEGORIES, TERMS_CLAUSES } from '@/lib/termsAndConditions'
 import { calcQuotationTotals, formatCurrency, generateId } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
@@ -134,6 +134,58 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
   return (
     <div className="space-y-8">
 
+      {/* ── Design & Style ── */}
+      <Section title="Design & Style">
+        <div className="space-y-5">
+          <div>
+            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Theme</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {QUOTATION_THEMES.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => set({ theme: t.value as Quotation['theme'] })}
+                  className={`rounded-xl border-2 p-3 text-left transition ${
+                    q.theme === t.value
+                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20'
+                      : 'border-slate-200 hover:border-slate-300 dark:border-slate-700'
+                  }`}
+                >
+                  <p className="font-semibold text-slate-900 dark:text-white">{t.label}</p>
+                  <p className="mt-0.5 text-xs text-slate-500">{t.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Accent Color</p>
+            <div className="flex flex-wrap items-center gap-2">
+              {ACCENT_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => set({ accentColor: c })}
+                  title={c}
+                  className={`h-8 w-8 rounded-full transition-transform hover:scale-110 ${
+                    q.accentColor === c ? 'scale-110 ring-2 ring-slate-400 ring-offset-2' : ''
+                  }`}
+                  style={{ background: c }}
+                />
+              ))}
+              <label className="flex cursor-pointer items-center gap-1.5">
+                <input
+                  type="color"
+                  value={q.accentColor}
+                  onChange={(e) => set({ accentColor: e.target.value })}
+                  className="h-8 w-8 cursor-pointer rounded-full border-0 bg-transparent p-0"
+                />
+                <span className="text-xs text-slate-400">Custom</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </Section>
+
       {/* ── Quotation Details ── */}
       <Section title="Quotation Details">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -141,18 +193,6 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
             label="Quotation Number"
             value={q.quotationNumber}
             onChange={(e) => set({ quotationNumber: e.target.value })}
-          />
-          <Input
-            label="Proposal Version"
-            value={q.version ?? '1.0'}
-            onChange={(e) => set({ version: e.target.value })}
-            placeholder="e.g. 1.0"
-          />
-          <Input
-            label="Prepared By / Sales Person"
-            value={q.salesPerson ?? ''}
-            onChange={(e) => set({ salesPerson: e.target.value })}
-            placeholder="e.g. Abhishek Parekar (Sales Executive)"
           />
           <Select
             label="Status"
@@ -190,6 +230,11 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
               />
               <span className="whitespace-nowrap pr-3 text-sm text-slate-400">days</span>
             </div>
+            {q.projectTimelineDays > 0 && (
+              <p className="text-xs text-slate-400">
+                ≈ {Math.ceil(q.projectTimelineDays / 5)} week{Math.ceil(q.projectTimelineDays / 5) !== 1 ? 's' : ''}
+              </p>
+            )}
           </div>
         </div>
       </Section>
@@ -200,15 +245,14 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
           Saved automatically on every quotation save and pre-filled for future quotations.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Input label="Company Name *" value={q.company.name} onChange={(e) => set({ company: { ...q.company, name: e.target.value } })} placeholder="ICODED AUTOMATION PVT LTD" />
-          <Input label="Company Tagline" value={q.company.tagline ?? ''} onChange={(e) => set({ company: { ...q.company, tagline: e.target.value } })} placeholder="Building Business Through Technology" />
-          <Input label="Email *" type="email" value={q.company.email} onChange={(e) => set({ company: { ...q.company, email: e.target.value } })} placeholder="company.icoded@gmail.com" />
-          <Input label="Phone" value={q.company.phone} onChange={(e) => set({ company: { ...q.company, phone: e.target.value } })} placeholder="+91 93703 29233" />
-          <Input label="Website" value={q.company.website} onChange={(e) => set({ company: { ...q.company, website: e.target.value } })} placeholder="www.icodedautomation.com" />
-          <Input label="Instagram ID" value={q.company.instagram ?? ''} onChange={(e) => set({ company: { ...q.company, instagram: e.target.value } })} placeholder="@icodedautomation" />
-          <Input label="Address" value={q.company.address} onChange={(e) => set({ company: { ...q.company, address: e.target.value } })} placeholder="Nisha Pride, 2nd Floor, Mondha Naka" />
-          <Input label="City / State / ZIP" value={q.company.city} onChange={(e) => set({ company: { ...q.company, city: e.target.value } })} placeholder="Chh. Sambhajinagar, Maharashtra" />
-          <Input label="Tax ID / GST / VAT" value={q.company.taxId ?? ''} onChange={(e) => set({ company: { ...q.company, taxId: e.target.value } })} placeholder="GST: 27ABCDE1234F1Z5" />
+          <Input label="Company Name *" value={q.company.name} onChange={(e) => set({ company: { ...q.company, name: e.target.value } })} placeholder="Acme Corp" />
+          <Input label="Email *" type="email" value={q.company.email} onChange={(e) => set({ company: { ...q.company, email: e.target.value } })} placeholder="hello@company.com" />
+          <Input label="Phone" value={q.company.phone} onChange={(e) => set({ company: { ...q.company, phone: e.target.value } })} placeholder="+1 555 000 0000" />
+          <Input label="Website" value={q.company.website} onChange={(e) => set({ company: { ...q.company, website: e.target.value } })} placeholder="https://company.com" />
+          <Input label="Instagram ID" value={q.company.instagram ?? ''} onChange={(e) => set({ company: { ...q.company, instagram: e.target.value } })} placeholder="@mybusiness" />
+          <Input label="Address" value={q.company.address} onChange={(e) => set({ company: { ...q.company, address: e.target.value } })} placeholder="123 Main Street" />
+          <Input label="City / State / ZIP" value={q.company.city} onChange={(e) => set({ company: { ...q.company, city: e.target.value } })} placeholder="New York, NY 10001" />
+          <Input label="Tax ID / GST / VAT" value={q.company.taxId ?? ''} onChange={(e) => set({ company: { ...q.company, taxId: e.target.value } })} placeholder="GST: 12ABCDE1234F1Z5" />
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Logo</label>
             <div className="flex items-center gap-2">
@@ -273,9 +317,7 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
             </select>
           </div>
           <Input label="Contact Name *" value={q.client.name} onChange={(e) => set({ client: { ...q.client, name: e.target.value } })} placeholder="John Smith" />
-          <Input label="Designation" value={q.client.designation ?? ''} onChange={(e) => set({ client: { ...q.client, designation: e.target.value } })} placeholder="e.g. CEO / Managing Director" />
           <Input label="Company Name" value={q.client.company} onChange={(e) => set({ client: { ...q.client, company: e.target.value } })} placeholder="Client Corp" />
-          <Input label="Client GST Number" value={q.client.gstNumber ?? ''} onChange={(e) => set({ client: { ...q.client, gstNumber: e.target.value } })} placeholder="GSTIN27XYZAB5678C1Z9" />
           <Input label="Email" type="email" value={q.client.email} onChange={(e) => set({ client: { ...q.client, email: e.target.value } })} placeholder="client@example.com" />
           <Input label="Phone" value={q.client.phone} onChange={(e) => set({ client: { ...q.client, phone: e.target.value } })} placeholder="+91 98765 43210" />
           <Input label="Address" value={q.client.address} onChange={(e) => set({ client: { ...q.client, address: e.target.value } })} placeholder="456 Client Ave" />
