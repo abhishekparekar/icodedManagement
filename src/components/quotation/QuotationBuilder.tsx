@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { ACCENT_COLORS, CURRENCIES, QUOTATION_THEMES } from '@/lib/constants'
+import { CURRENCIES } from '@/lib/constants'
 import { TERMS_CATEGORIES, TERMS_CLAUSES } from '@/lib/termsAndConditions'
 import { calcQuotationTotals, formatCurrency, generateId } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
@@ -133,58 +133,6 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
 
   return (
     <div className="space-y-8">
-
-      {/* ── Design & Style ── */}
-      <Section title="Design & Style">
-        <div className="space-y-5">
-          <div>
-            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Theme</p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {QUOTATION_THEMES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => set({ theme: t.value as Quotation['theme'] })}
-                  className={`rounded-xl border-2 p-3 text-left transition ${
-                    q.theme === t.value
-                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20'
-                      : 'border-slate-200 hover:border-slate-300 dark:border-slate-700'
-                  }`}
-                >
-                  <p className="font-semibold text-slate-900 dark:text-white">{t.label}</p>
-                  <p className="mt-0.5 text-xs text-slate-500">{t.description}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Accent Color</p>
-            <div className="flex flex-wrap items-center gap-2">
-              {ACCENT_COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => set({ accentColor: c })}
-                  title={c}
-                  className={`h-8 w-8 rounded-full transition-transform hover:scale-110 ${
-                    q.accentColor === c ? 'scale-110 ring-2 ring-slate-400 ring-offset-2' : ''
-                  }`}
-                  style={{ background: c }}
-                />
-              ))}
-              <label className="flex cursor-pointer items-center gap-1.5">
-                <input
-                  type="color"
-                  value={q.accentColor}
-                  onChange={(e) => set({ accentColor: e.target.value })}
-                  className="h-8 w-8 cursor-pointer rounded-full border-0 bg-transparent p-0"
-                />
-                <span className="text-xs text-slate-400">Custom</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </Section>
 
       {/* ── Quotation Details ── */}
       <Section title="Quotation Details">
