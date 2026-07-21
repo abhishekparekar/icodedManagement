@@ -142,6 +142,18 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
             value={q.quotationNumber}
             onChange={(e) => set({ quotationNumber: e.target.value })}
           />
+          <Input
+            label="Proposal Version"
+            value={q.version ?? '1.0'}
+            onChange={(e) => set({ version: e.target.value })}
+            placeholder="e.g. 1.0"
+          />
+          <Input
+            label="Prepared By / Sales Person"
+            value={q.salesPerson ?? ''}
+            onChange={(e) => set({ salesPerson: e.target.value })}
+            placeholder="e.g. Abhishek Parekar (Sales Executive)"
+          />
           <Select
             label="Status"
             value={q.status}
@@ -178,11 +190,6 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
               />
               <span className="whitespace-nowrap pr-3 text-sm text-slate-400">days</span>
             </div>
-            {q.projectTimelineDays > 0 && (
-              <p className="text-xs text-slate-400">
-                ≈ {Math.ceil(q.projectTimelineDays / 5)} week{Math.ceil(q.projectTimelineDays / 5) !== 1 ? 's' : ''}
-              </p>
-            )}
           </div>
         </div>
       </Section>
@@ -193,14 +200,15 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
           Saved automatically on every quotation save and pre-filled for future quotations.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Input label="Company Name *" value={q.company.name} onChange={(e) => set({ company: { ...q.company, name: e.target.value } })} placeholder="Acme Corp" />
-          <Input label="Email *" type="email" value={q.company.email} onChange={(e) => set({ company: { ...q.company, email: e.target.value } })} placeholder="hello@company.com" />
-          <Input label="Phone" value={q.company.phone} onChange={(e) => set({ company: { ...q.company, phone: e.target.value } })} placeholder="+1 555 000 0000" />
-          <Input label="Website" value={q.company.website} onChange={(e) => set({ company: { ...q.company, website: e.target.value } })} placeholder="https://company.com" />
-          <Input label="Instagram ID" value={q.company.instagram ?? ''} onChange={(e) => set({ company: { ...q.company, instagram: e.target.value } })} placeholder="@mybusiness" />
-          <Input label="Address" value={q.company.address} onChange={(e) => set({ company: { ...q.company, address: e.target.value } })} placeholder="123 Main Street" />
-          <Input label="City / State / ZIP" value={q.company.city} onChange={(e) => set({ company: { ...q.company, city: e.target.value } })} placeholder="New York, NY 10001" />
-          <Input label="Tax ID / GST / VAT" value={q.company.taxId ?? ''} onChange={(e) => set({ company: { ...q.company, taxId: e.target.value } })} placeholder="GST: 12ABCDE1234F1Z5" />
+          <Input label="Company Name *" value={q.company.name} onChange={(e) => set({ company: { ...q.company, name: e.target.value } })} placeholder="ICODED AUTOMATION PVT LTD" />
+          <Input label="Company Tagline" value={q.company.tagline ?? ''} onChange={(e) => set({ company: { ...q.company, tagline: e.target.value } })} placeholder="Building Business Through Technology" />
+          <Input label="Email *" type="email" value={q.company.email} onChange={(e) => set({ company: { ...q.company, email: e.target.value } })} placeholder="company.icoded@gmail.com" />
+          <Input label="Phone" value={q.company.phone} onChange={(e) => set({ company: { ...q.company, phone: e.target.value } })} placeholder="+91 93703 29233" />
+          <Input label="Website" value={q.company.website} onChange={(e) => set({ company: { ...q.company, website: e.target.value } })} placeholder="www.icodedautomation.com" />
+          <Input label="Instagram ID" value={q.company.instagram ?? ''} onChange={(e) => set({ company: { ...q.company, instagram: e.target.value } })} placeholder="@icodedautomation" />
+          <Input label="Address" value={q.company.address} onChange={(e) => set({ company: { ...q.company, address: e.target.value } })} placeholder="Nisha Pride, 2nd Floor, Mondha Naka" />
+          <Input label="City / State / ZIP" value={q.company.city} onChange={(e) => set({ company: { ...q.company, city: e.target.value } })} placeholder="Chh. Sambhajinagar, Maharashtra" />
+          <Input label="Tax ID / GST / VAT" value={q.company.taxId ?? ''} onChange={(e) => set({ company: { ...q.company, taxId: e.target.value } })} placeholder="GST: 27ABCDE1234F1Z5" />
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Logo</label>
             <div className="flex items-center gap-2">
@@ -265,7 +273,9 @@ export function QuotationBuilder({ value: q, onChange }: Props) {
             </select>
           </div>
           <Input label="Contact Name *" value={q.client.name} onChange={(e) => set({ client: { ...q.client, name: e.target.value } })} placeholder="John Smith" />
+          <Input label="Designation" value={q.client.designation ?? ''} onChange={(e) => set({ client: { ...q.client, designation: e.target.value } })} placeholder="e.g. CEO / Managing Director" />
           <Input label="Company Name" value={q.client.company} onChange={(e) => set({ client: { ...q.client, company: e.target.value } })} placeholder="Client Corp" />
+          <Input label="Client GST Number" value={q.client.gstNumber ?? ''} onChange={(e) => set({ client: { ...q.client, gstNumber: e.target.value } })} placeholder="GSTIN27XYZAB5678C1Z9" />
           <Input label="Email" type="email" value={q.client.email} onChange={(e) => set({ client: { ...q.client, email: e.target.value } })} placeholder="client@example.com" />
           <Input label="Phone" value={q.client.phone} onChange={(e) => set({ client: { ...q.client, phone: e.target.value } })} placeholder="+91 98765 43210" />
           <Input label="Address" value={q.client.address} onChange={(e) => set({ client: { ...q.client, address: e.target.value } })} placeholder="456 Client Ave" />
