@@ -550,14 +550,64 @@ export function QuotationsPage() {
       {previewOpen && draft && (
         <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} title={'Quotation ' + draft.quotationNumber} size="xl">
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 dark:border-slate-700">
-              <Badge className={statusColor(draft.status)}>{draft.status}</Badge>
+            {/* Top Toolbar Action Buttons */}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+              
+              {/* Status Badge */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-500">Status:</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                  draft.status === 'accepted' ? 'bg-emerald-500 text-white' :
+                  draft.status === 'rejected' ? 'bg-red-500 text-white' :
+                  draft.status === 'expired' ? 'bg-slate-500 text-white' :
+                  'bg-amber-500 text-white'
+                }`}>
+                  {draft.status === 'sent' || draft.status === 'draft' ? 'Pending' : draft.status}
+                </span>
+              </div>
+
+              {/* Action Buttons: PDF, Print, Email, WhatsApp */}
               <div className="flex flex-wrap items-center gap-2">
-                <Button variant="secondary" onClick={handleDownloadPDF}><Download className="h-4 w-4" /> Save PDF</Button>
-                {canWrite && <Button onClick={() => { setPreviewOpen(false); openEdit(draft) }}><Pencil className="h-4 w-4" /> Edit</Button>}
+                <Button variant="secondary" className="h-9 text-xs font-bold gap-1.5" onClick={handleDownloadPDF}>
+                  <Download className="h-4 w-4 text-brand-600 dark:text-brand-400" /> Download PDF
+                </Button>
+
+                <Button variant="secondary" className="h-9 text-xs font-bold gap-1.5" onClick={() => window.print()}>
+                  🖨️ Print
+                </Button>
+
+                {draft.client.email && (
+                  <Button 
+                    variant="secondary" 
+                    className="h-9 text-xs font-bold gap-1.5" 
+                    onClick={() => window.open(`mailto:${draft.client.email}?subject=Quotation ${draft.quotationNumber} from ${encodeURIComponent(draft.company.name)}`)}
+                  >
+                    📧 Send Email
+                  </Button>
+                )}
+
+                {draft.client.phone && (
+                  <Button 
+                    className="h-9 text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white" 
+                    onClick={() => {
+                      const cleanPhone = draft.client.phone.replace(/[^0-9]/g, '')
+                      const msg = `Hello ${draft.client.name}, Please review Quotation ${draft.quotationNumber} for ${draft.company.name}. Total: ${formatCurrency(draft.grandTotal, draft.currency)}`
+                      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank')
+                    }}
+                  >
+                    💬 Send WhatsApp
+                  </Button>
+                )}
+
+                {canWrite && (
+                  <Button className="h-9 text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white" onClick={() => { setPreviewOpen(false); openEdit(draft) }}>
+                    <Pencil className="h-4 w-4" /> Edit
+                  </Button>
+                )}
               </div>
             </div>
-            <div ref={printRef} className="rounded-xl border border-slate-200 p-2 dark:border-slate-800">
+
+            <div ref={printRef} className="rounded-xl border border-slate-200 p-2 dark:border-slate-800 bg-white">
               <QuotationPreview quotation={draft} />
             </div>
           </div>
