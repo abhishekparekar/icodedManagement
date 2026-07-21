@@ -18,6 +18,10 @@ export type Permission =
   | 'goals:write'
   | 'bills:read'
   | 'bills:write'
+  | 'expenses:read'
+  | 'expenses:write'
+  | 'inventory:read'
+  | 'inventory:write'
 
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   admin: [
@@ -30,6 +34,8 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'quotations:read', 'quotations:write',
     'goals:read', 'goals:write',
     'bills:read', 'bills:write',
+    'expenses:read', 'expenses:write',
+    'inventory:read', 'inventory:write',
   ],
   manager: [
     'employees:read',
@@ -41,6 +47,8 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'quotations:read', 'quotations:write',
     'goals:read', 'goals:write',
     'bills:read', 'bills:write',
+    'expenses:read', 'expenses:write',
+    'inventory:read', 'inventory:write',
   ],
   employee: [
     'projects:read', 'tasks:read', 'tasks:write',
@@ -48,6 +56,8 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'quotations:read',
     'goals:read',
     'bills:read',
+    'expenses:read',
+    'inventory:read',
   ],
 }
 
@@ -79,3 +89,12 @@ export function canManageGoals(user: AppUser | null): boolean {
 export function canManageBills(user: AppUser | null): boolean {
   return hasPermission(user, 'bills:write')
 }
+
+export function canManageExpenses(user: AppUser | null): boolean {
+  return hasPermission(user, 'expenses:write')
+}
+
+export function canManageInventory(user: AppUser | null): boolean {
+  return hasPermission(user, 'inventory:write')
+}
+

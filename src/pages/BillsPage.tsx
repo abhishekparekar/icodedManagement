@@ -1,5 +1,5 @@
-import { Eye, FileText, Pencil, Plus, Printer, Receipt, Save, Trash2, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Eye, FileText, Pencil, Plus, Printer, Receipt, Save, Search, Trash2, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { BillPreview } from '@/components/bill/BillPreview'
 import { Badge } from '@/components/ui/Badge'
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { Pagination } from '@/components/ui/Pagination'
 import { Select } from '@/components/ui/Select'
+import { StatCard } from '@/components/ui/StatCard'
 import { Textarea } from '@/components/ui/Textarea'
 import { BILL_STATUSES, CURRENCIES, PAGE_SIZE, PAYMENT_MODES } from '@/lib/constants'
 import { canManageBills } from '@/lib/permissions'
@@ -464,6 +465,7 @@ export function BillsPage() {
   const canWrite = canManageBills(user)
 
   const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [builderOpen, setBuilderOpen] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -487,11 +489,26 @@ export function BillsPage() {
       .catch(() => setProfileLoaded(true))
   }, [user?.tenantId, profileLoaded])
 
-  const filtered = statusFilter ? bills.filter((b) => b.status === statusFilter) : bills
+  const filtered = useMemo(() => {
+    return bills.filter((b) => {
+      const matchesStatus = !statusFilter || b.status === statusFilter
+      const query = search.toLowerCase().trim()
+      const matchesSearch =
+        !query ||
+        b.billNumber.toLowerCase().includes(query) ||
+        b.client.name.toLowerCase().includes(query) ||
+        (b.client.company && b.client.company.toLowerCase().includes(query)) ||
+        (b.quotationNumber && b.quotationNumber.toLowerCase().includes(query))
+
+      return matchesStatus && matchesSearch
+    })
+  }, [bills, search, statusFilter])
+
   const paged = paginate(filtered, page, PAGE_SIZE)
   const pages = totalPages(filtered.length, PAGE_SIZE)
 
   // Stats
+  const currency = bills[0]?.currency ?? 'INR'
   const totalBilled = bills.reduce((s, b) => s + b.grandTotal, 0)
   const totalPaid = bills.reduce((s, b) => s + (b.amountPaid || 0), 0)
   const totalDue = bills.reduce((s, b) => s + (b.balanceDue ?? b.grandTotal), 0)
@@ -637,56 +654,94 @@ export function BillsPage() {
     setTimeout(() => pw.print(), 600)
   }
 
-  const currency = bills[0]?.currency ?? 'INR'
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { label: 'Total Billed',  value: formatCurrency(totalBilled, currency), color: 'bg-brand-500' },
-          { label: 'Total Received', value: formatCurrency(totalPaid, currency),  color: 'bg-emerald-500' },
-          { label: 'Balance Due',   value: formatCurrency(totalDue, currency),    color: 'bg-amber-500' },
-          { label: 'Overdue Bills', value: String(overdueCnt),                    color: 'bg-red-500' },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-card dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-slate-500">{s.label}</p>
-                <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{s.value}</p>
-              </div>
-              <div className={'flex h-10 w-10 items-center justify-center rounded-xl ' + s.color}>
-                <Receipt className="h-5 w-5 text-white" />
-              </div>
-            </div>
-          </div>
-        ))}
+      {/* ── KPI Summary Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+        <StatCard title="Total Billed"    value={formatCurrency(totalBilled, currency)} icon={Receipt} to="/bills" gradient="from-brand-500 to-violet-600" delay="delay-75" />
+        <StatCard title="Total Received"  value={formatCurrency(totalPaid, currency)}   icon={Receipt} to="/bills" gradient="from-emerald-500 to-teal-600" delay="delay-150" />
+        <StatCard title="Balance Due"     value={formatCurrency(totalDue, currency)}    icon={Receipt} to="/bills" gradient="from-amber-500 to-orange-500"  delay="delay-225" />
+        <StatCard title="Overdue Invoices" value={overdueCnt}                           icon={Receipt} to="/bills" gradient="from-rose-500 to-pink-600"     delay="delay-300" />
       </div>
 
-      {/* Main list */}
-      <Card>
-        <CardHeader title="Bills / Invoices" subtitle={filtered.length + ' bill' + (filtered.length !== 1 ? 's' : '')}
-          action={canWrite && (
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => setFromQuotationOpen(true)} disabled={!profileLoaded}>
+      {/* ── Integrated Search & Control Bar ── */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+        
+        {/* Search & Status Filter */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 flex-1 max-w-xl">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+            <input
+              className="h-9 w-full rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 pl-9 pr-8 text-xs font-semibold text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+              placeholder="Search bill #, client name, ref..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(1)
+              }}
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-2.5 top-2 rounded-md p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          <select
+            className="h-9 w-full rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value)
+              setPage(1)
+            }}
+          >
+            <option value="">All Statuses</option>
+            {BILL_STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-end">
+          {(search || statusFilter) && (
+            <button
+              onClick={() => { setSearch(''); setStatusFilter(''); setPage(1) }}
+              className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline px-2"
+            >
+              Reset
+            </button>
+          )}
+
+          {canWrite && (
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" onClick={() => setFromQuotationOpen(true)} disabled={!profileLoaded} className="h-9 text-xs font-bold">
                 <FileText className="h-4 w-4" /> From Quotation
               </Button>
-              <Button onClick={openCreate} disabled={!profileLoaded}>
-                <Plus className="h-4 w-4" /> New bill
+              <Button onClick={openCreate} disabled={!profileLoaded} className="h-9 text-xs font-bold bg-gradient-to-r from-brand-600 to-violet-600 hover:from-brand-700 hover:to-violet-700 text-white shadow-md shadow-brand-500/20">
+                <Plus className="h-4 w-4" /> New Bill
               </Button>
             </div>
-          )} />
+          )}
+        </div>
+      </div>
 
-        {/* Filters */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {[{ value: '', label: 'All' }, ...BILL_STATUSES].map((s) => (
-            <button key={s.value} onClick={() => { setStatusFilter(s.value); setPage(1) }}
-              className={'rounded-full px-3 py-1 text-xs font-medium transition ' +
-                (statusFilter === s.value ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300')}>
-              {s.label}
-            </button>
-          ))}
+      {/* ── Bills Stream List Container ── */}
+      <Card className="!p-0 overflow-hidden">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="flex items-center gap-2">
+            <Receipt className="h-4.5 w-4.5 text-brand-600 dark:text-brand-400" />
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Bills & Invoices Stream</h3>
+          </div>
+          <span className="text-xs font-semibold text-slate-400">
+            {filtered.length} total bills
+          </span>
         </div>
 
         {filtered.length === 0 ? (
@@ -697,51 +752,52 @@ export function BillsPage() {
             {/* Desktop Table View */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800">
+                <thead className="border-b border-slate-200/80 bg-slate-50/50 text-xs uppercase tracking-wider text-slate-400 dark:border-slate-800 dark:bg-slate-950/60 font-bold">
                   <tr>
-                    <th className="pb-3 pr-4">Bill No.</th>
-                    <th className="pb-3 pr-4">Client</th>
-                    <th className="pb-3 pr-4">Issue Date</th>
-                    <th className="pb-3 pr-4">Due Date</th>
-                    <th className="pb-3 pr-4">Total</th>
-                    <th className="pb-3 pr-4">Paid</th>
-                    <th className="pb-3 pr-4">Balance</th>
-                    <th className="pb-3 pr-4">Status</th>
-                    <th className="pb-3">Actions</th>
+                    <th className="py-3 px-6">Bill No.</th>
+                    <th className="py-3 px-4">Client</th>
+                    <th className="py-3 px-4">Issue Date</th>
+                    <th className="py-3 px-4">Due Date</th>
+                    <th className="py-3 px-4">Grand Total</th>
+                    <th className="py-3 px-4">Paid</th>
+                    <th className="py-3 px-4">Balance</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {paged.map((b) => (
-                    <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <td className="py-3 pr-4">
-                        <span className="font-mono font-semibold text-brand-600 dark:text-brand-400">{b.billNumber}</span>
-                        {b.quotationNumber && <p className="text-xs text-slate-400">Ref: {b.quotationNumber}</p>}
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {paged.map((b: Bill) => (
+                    <tr key={b.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="py-3.5 px-6">
+                        <span className="font-mono font-bold text-brand-600 dark:text-brand-400 text-xs">{b.billNumber}</span>
+                        {b.quotationNumber && <p className="text-[10px] text-slate-400">Ref: {b.quotationNumber}</p>}
                       </td>
-                      <td className="py-3 pr-4">
-                        <p className="font-medium text-slate-900 dark:text-white">
+                      <td className="py-3.5 px-4">
+                        <p className="font-bold text-slate-900 dark:text-white text-xs">
                           {b.client.salutation ? b.client.salutation + ' ' : ''}{b.client.name}
                         </p>
-                        {b.client.company && <p className="text-xs text-slate-500">{b.client.company}</p>}
+                        {b.client.company && <p className="text-[11px] font-semibold text-slate-400">{b.client.company}</p>}
                       </td>
-                      <td className="py-3 pr-4 text-slate-500">{formatDate(b.issueDate)}</td>
-                      <td className={'py-3 pr-4 ' + (b.status === 'overdue' ? 'font-semibold text-red-600' : 'text-slate-500')}>{formatDate(b.dueDate)}</td>
-                      <td className="py-3 pr-4 font-semibold text-slate-900 dark:text-white">{formatCurrency(b.grandTotal, b.currency)}</td>
-                      <td className="py-3 pr-4 text-emerald-600">{formatCurrency(b.amountPaid || 0, b.currency)}</td>
-                      <td className={'py-3 pr-4 font-semibold ' + ((b.balanceDue ?? 0) > 0 ? 'text-amber-600' : 'text-emerald-600')}>
+                      <td className="py-3.5 px-4 text-xs font-semibold text-slate-400">{formatDate(b.issueDate)}</td>
+                      <td className={'py-3.5 px-4 text-xs font-semibold ' + (b.status === 'overdue' ? 'text-red-600' : 'text-slate-400')}>{formatDate(b.dueDate)}</td>
+                      <td className="py-3.5 px-4 font-black text-slate-900 dark:text-white text-xs">{formatCurrency(b.grandTotal, b.currency)}</td>
+                      <td className="py-3.5 px-4 font-bold text-emerald-600 text-xs">{formatCurrency(b.amountPaid || 0, b.currency)}</td>
+                      <td className={'py-3.5 px-4 font-black text-xs ' + ((b.balanceDue ?? 0) > 0 ? 'text-amber-600' : 'text-emerald-600')}>
                         {formatCurrency(b.balanceDue ?? 0, b.currency)}
                       </td>
-                      <td className="py-3 pr-4"><Badge className={statusColor(b.status)}>{b.status}</Badge></td>
-                      <td className="py-3">
-                        <div className="flex items-center gap-1">
-                          <Button variant="ghost" onClick={() => openPreview(b)} title="Preview"><Eye className="h-4 w-4" /></Button>
+                      <td className="py-3.5 px-4">
+                        <Badge className={`border uppercase tracking-wider text-[10px] font-black ${statusColor(b.status)}`}>{b.status}</Badge>
+                      </td>
+                      <td className="py-3.5 px-6 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => openPreview(b)} title="Preview / PDF"><Eye className="h-4 w-4 text-slate-500 hover:text-brand-600" /></Button>
                           {canWrite && (
                             <>
-                              <Button variant="ghost" onClick={() => setPaymentBill(b)} title="Record payment"
-                                className="text-emerald-600 hover:text-emerald-700">
-                                <Receipt className="h-4 w-4" />
+                              <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => setPaymentBill(b)} title="Record payment">
+                                <Receipt className="h-4 w-4 text-emerald-600 hover:text-emerald-700" />
                               </Button>
-                              <Button variant="ghost" onClick={() => openEdit(b)} title="Edit"><Pencil className="h-4 w-4" /></Button>
-                              <Button variant="ghost" onClick={() => setDeleteTarget(b)} title="Delete"><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                              <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => openEdit(b)} title="Edit"><Pencil className="h-4 w-4 text-slate-500 hover:text-brand-600" /></Button>
+                              <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => setDeleteTarget(b)} title="Delete"><Trash2 className="h-4 w-4 text-red-500 hover:text-red-600" /></Button>
                             </>
                           )}
                         </div>
@@ -754,7 +810,7 @@ export function BillsPage() {
 
             {/* Mobile Card-based List View */}
             <div className="grid gap-3 md:hidden">
-              {paged.map((b) => (
+              {paged.map((b: Bill) => (
                 <div key={b.id} className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                   <div className="flex items-start justify-between gap-2">
                     <div>

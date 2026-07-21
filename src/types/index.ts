@@ -258,3 +258,66 @@ export interface Tenant {
   name: string
   createdAt: string
 }
+
+export type ExpenseCategory =
+  | 'software_subscription'
+  | 'hardware'
+  | 'cloud_infrastructure'
+  | 'office_utility'
+  | 'team_allowance'
+  | 'marketing'
+  | 'miscellaneous'
+
+export type ExpenseStatus = 'paid' | 'pending' | 'approved'
+
+export interface Expense {
+  id: string
+  tenantId: string
+  title: string
+  amount: number
+  category: ExpenseCategory
+  paymentMethod: string
+  vendor: string
+  date: string
+  status: ExpenseStatus
+  notes?: string
+  receiptUrl?: string
+  createdBy: string
+  createdByName: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type InventoryCategory =
+  | 'laptop'
+  | 'workstation'
+  | 'monitor'
+  | 'server_network'
+  | 'mobile_tablet'
+  | 'software_license'
+  | 'peripheral'
+
+export type InventoryStatus = 'in_use' | 'in_stock' | 'maintenance' | 'retired'
+export type InventoryCondition = 'new' | 'good' | 'fair' | 'damaged'
+
+export interface InventoryItem {
+  id: string
+  tenantId: string
+  name: string
+  assetTag: string
+  serialNumber?: string
+  category: InventoryCategory
+  status: InventoryStatus
+  condition: InventoryCondition
+  assignedTo?: string
+  assignedToName?: string
+  purchaseDate: string
+  purchaseCost: number
+  location?: string
+  notes?: string
+  createdBy?: string
+  createdByName?: string
+  createdAt: string
+  updatedAt: string
+}
+

@@ -2,7 +2,9 @@ import { useEffect } from 'react'
 import { subscribeActivityLogs } from '@/services/activity.service'
 import { subscribeBills } from '@/services/bills.service'
 import { subscribeEmployees } from '@/services/employees.service'
+import { subscribeExpenses } from '@/services/expenses.service'
 import { subscribeGoals } from '@/services/goals.service'
+import { subscribeInventory } from '@/services/inventory.service'
 import { subscribeLeads } from '@/services/leads.service'
 import { subscribeProjects } from '@/services/projects.service'
 import { subscribeQuotations } from '@/services/quotations.service'
@@ -12,7 +14,7 @@ import { hasPermission } from '@/lib/permissions'
 
 export function useRealtimeData() {
   const user = useAuthStore((s) => s.user)
-  const { setEmployees, setLeads, setProjects, setActivityLogs, setQuotations, setGoals, setBills } = useDataStore()
+  const { setEmployees, setLeads, setProjects, setActivityLogs, setQuotations, setGoals, setBills, setExpenses, setInventory } = useDataStore()
 
   useEffect(() => {
     if (!user?.tenantId) return
@@ -32,7 +34,12 @@ export function useRealtimeData() {
       unsubs.push(subscribeGoals(user.tenantId, setGoals))
     if (hasPermission(user, 'bills:read'))
       unsubs.push(subscribeBills(user.tenantId, setBills))
+    if (hasPermission(user, 'expenses:read'))
+      unsubs.push(subscribeExpenses(user.tenantId, setExpenses))
+    if (hasPermission(user, 'inventory:read'))
+      unsubs.push(subscribeInventory(user.tenantId, setInventory))
 
     return () => unsubs.forEach((u) => u())
-  }, [user, setEmployees, setLeads, setProjects, setActivityLogs, setQuotations, setGoals, setBills])
+  }, [user, setEmployees, setLeads, setProjects, setActivityLogs, setQuotations, setGoals, setBills, setExpenses, setInventory])
 }
+

@@ -1,5 +1,7 @@
 import type { AppUser } from '@/types'
 import { createEmployee } from './employees.service'
+import { createExpense } from './expenses.service'
+import { createInventoryItem } from './inventory.service'
 import { createLead } from './leads.service'
 import { createProject } from './projects.service'
 
@@ -42,18 +44,6 @@ export async function seedDemoData(user: AppUser): Promise<void> {
     },
     user,
   )
-  await createLead(
-    tenantId,
-    {
-      clientName: 'Initech',
-      contact: 'sales@initech.com',
-      source: 'LinkedIn',
-      status: 'converted',
-      assignedTo: empIds[1] ?? '',
-      notes: 'Signed annual contract',
-    },
-    user,
-  )
 
   await createProject(
     tenantId,
@@ -68,30 +58,75 @@ export async function seedDemoData(user: AppUser): Promise<void> {
     },
     user,
   )
-  await createProject(
+
+  // Seed IT Expenses
+  await createExpense(
     tenantId,
     {
-      name: 'CRM Integration',
-      description: 'Integrate Salesforce with internal tools.',
-      status: 'pending',
-      progress: 10,
-      startDate: '2025-03-01',
-      endDate: '2025-09-01',
-      assignedEmployees: [empIds[1] ?? ''],
+      title: 'AWS Cloud Hosting & Database Services',
+      amount: 1450.00,
+      category: 'cloud_infrastructure',
+      paymentMethod: 'Corporate Card',
+      vendor: 'Amazon Web Services',
+      date: new Date().toISOString().split('T')[0],
+      status: 'paid',
+      notes: 'Monthly EC2, RDS, and S3 usage',
+      createdBy: user.uid,
+      createdByName: user.name,
     },
     user,
   )
-  await createProject(
+  await createExpense(
     tenantId,
     {
-      name: 'Q4 Marketing Campaign',
-      description: 'Launch multi-channel campaign for product line.',
-      status: 'completed',
-      progress: 100,
-      startDate: '2024-09-01',
-      endDate: '2024-12-15',
-      assignedEmployees: empIds,
+      title: 'GitHub Enterprise & Copilot Licenses',
+      amount: 680.00,
+      category: 'software_subscription',
+      paymentMethod: 'Corporate Card',
+      vendor: 'GitHub Inc.',
+      date: new Date().toISOString().split('T')[0],
+      status: 'paid',
+      notes: 'Developer seats annual renewal',
+      createdBy: user.uid,
+      createdByName: user.name,
+    },
+    user,
+  )
+
+  // Seed IT Inventory
+  await createInventoryItem(
+    tenantId,
+    {
+      name: 'Apple MacBook Pro 16" M3 Max',
+      assetTag: 'AST-9021',
+      serialNumber: 'C02G9901M3M',
+      category: 'laptop',
+      status: 'in_use',
+      condition: 'new',
+      assignedTo: empIds[1],
+      assignedToName: 'James Wilson',
+      purchaseDate: '2024-02-10',
+      purchaseCost: 3499.00,
+      location: 'Engineers Bay #4',
+      notes: '36GB RAM, 1TB SSD',
+    },
+    user,
+  )
+  await createInventoryItem(
+    tenantId,
+    {
+      name: 'Dell UltraSharp 27" 4K Monitor',
+      assetTag: 'AST-4011',
+      serialNumber: 'CN-098412-DL',
+      category: 'monitor',
+      status: 'in_stock',
+      condition: 'good',
+      purchaseDate: '2024-01-15',
+      purchaseCost: 599.00,
+      location: 'IT Storage Cabinet B',
+      notes: 'USB-C Hub built-in',
     },
     user,
   )
 }
+

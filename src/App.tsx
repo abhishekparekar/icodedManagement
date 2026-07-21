@@ -9,6 +9,8 @@ import { LoginPage } from '@/pages/auth/LoginPage'
 import { SignupPage } from '@/pages/auth/SignupPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { EmployeesPage } from '@/pages/EmployeesPage'
+import { ExpensesPage } from '@/pages/ExpensesPage'
+import { InventoryPage } from '@/pages/InventoryPage'
 import { LeadsPage } from '@/pages/LeadsPage'
 import { ProjectDetailPage } from '@/pages/ProjectDetailPage'
 import { ProjectsPage } from '@/pages/ProjectsPage'
@@ -67,11 +69,24 @@ function AppProviders() {
           </Route>
         </Route>
 
+        <Route element={<ProtectedRoute permission="expenses:read" />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/expenses" element={<ExpensesPage />} />
+          </Route>
+        </Route>
+
+        <Route element={<ProtectedRoute permission="inventory:read" />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/inventory" element={<InventoryPage />} />
+          </Route>
+        </Route>
+
         <Route element={<ProtectedRoute permission="activity:read" />}>
           <Route element={<DashboardLayout />}>
             <Route path="/activity" element={<ActivityPage />} />
           </Route>
         </Route>
+
 
         {/* Reports — managers and admins */}
         <Route element={<ProtectedRoute permission="dashboard:full" />}>
@@ -124,7 +139,7 @@ function AppProviders() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AppProviders />
     </BrowserRouter>
   )

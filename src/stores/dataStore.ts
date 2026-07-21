@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { ActivityLog, Bill, Employee, Goal, Lead, Project, Quotation } from '@/types'
+import type { ActivityLog, Bill, Employee, Expense, Goal, InventoryItem, Lead, Project, Quotation } from '@/types'
 
 interface DataState {
   employees: Employee[]
@@ -9,6 +9,8 @@ interface DataState {
   quotations: Quotation[]
   goals: Goal[]
   bills: Bill[]
+  expenses: Expense[]
+  inventory: InventoryItem[]
   setEmployees: (employees: Employee[]) => void
   setLeads: (leads: Lead[]) => void
   setProjects: (projects: Project[]) => void
@@ -16,6 +18,8 @@ interface DataState {
   setQuotations: (quotations: Quotation[]) => void
   setGoals: (goals: Goal[]) => void
   setBills: (bills: Bill[]) => void
+  setExpenses: (expenses: Expense[]) => void
+  setInventory: (inventory: InventoryItem[]) => void
 }
 
 export const useDataStore = create<DataState>((set) => ({
@@ -26,6 +30,8 @@ export const useDataStore = create<DataState>((set) => ({
   quotations: [],
   goals: [],
   bills: [],
+  expenses: [],
+  inventory: [],
   setEmployees: (employees) => set({ employees }),
   setLeads: (leads) => set({ leads }),
   setProjects: (projects) => set({ projects }),
@@ -33,4 +39,7 @@ export const useDataStore = create<DataState>((set) => ({
   setQuotations: (quotations) => set({ quotations }),
   setGoals: (goals) => set({ goals }),
   setBills: (bills) => set({ bills }),
+  setExpenses: (expenses) => set({ expenses }),
+  setInventory: (inventory) => set({ inventory }),
 }))
+
