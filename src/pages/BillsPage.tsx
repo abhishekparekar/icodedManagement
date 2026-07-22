@@ -45,7 +45,7 @@ const BLANK_COMPANY: QuotationCompanyInfo = {
   email: 'info@icodedautomation.com',
   website: 'www.icodedautomation.com',
   taxId: '',
-  logoUrl: '/company_logo1.jpeg',
+  logoUrl: '/nextsuite.jpeg',
   about: '',
 }
 

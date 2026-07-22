@@ -41,7 +41,7 @@ export function Header({ onMenuClick, title }: HeaderProps) {
 
         <div className="flex items-center gap-3 min-w-0">
           <img
-            src="/company_logo1.jpeg"
+            src="/nextsuite.jpeg"
             alt="Logo"
             className="h-8 w-8 shrink-0 rounded-xl object-cover ring-2 ring-brand-500/20 lg:hidden shadow-sm"
           />

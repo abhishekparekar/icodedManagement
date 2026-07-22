@@ -66,7 +66,7 @@ export function SignupPage() {
             <div className="relative mb-3 sm:mb-3.5 group">
               <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-brand-500 via-indigo-500 to-pink-500 opacity-80 blur-md animate-spin-slow group-hover:opacity-100 transition duration-500" />
               <img
-                src="/company_logo1.jpeg"
+                src="/nextsuite.jpeg"
                 onError={(e) => {
                   ;(e.target as HTMLImageElement).src = '/login1.jpeg'
                 }}
@@ -76,7 +76,7 @@ export function SignupPage() {
             </div>
 
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase leading-snug text-center">
-              ICODED AUTOMATION PVT LTD
+              NextSuite
             </h1>
             <p className="mt-1 text-[10px] sm:text-xs font-black uppercase tracking-widest text-brand-400 flex items-center justify-center gap-1 animate-pulse">
               <Sparkles className="h-3.5 w-3.5 text-brand-400 shrink-0" />

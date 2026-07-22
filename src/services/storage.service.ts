@@ -34,10 +34,10 @@ export async function uploadCompanyLogo(
 /**
  * Downloads an image and converts it to Base64.
  * If Firebase Storage or URL download fails (CORS, network error, or timeout),
- * it returns the local fallback logo `/company_logo1.jpeg` safely.
+ * it returns the local fallback logo `/nextsuite.jpeg` safely.
  */
 export async function downloadImageAsBase64(url: string): Promise<string> {
-  if (!url || url === '/company_logo1.jpeg') return '/company_logo1.jpeg'
+  if (!url || url === '/nextsuite.jpeg') return '/nextsuite.jpeg'
   if (url.startsWith('data:')) return url
 
   // 1. Try Firebase SDK getBlob with 3 second timeout race
@@ -78,7 +78,7 @@ export async function downloadImageAsBase64(url: string): Promise<string> {
     const base64FromCanvas = await new Promise<string>((resolve) => {
       const img = new Image()
       img.crossOrigin = 'anonymous'
-      const timer = setTimeout(() => resolve('/company_logo1.jpeg'), 2000)
+      const timer = setTimeout(() => resolve('/nextsuite.jpeg'), 2000)
 
       img.onload = () => {
         clearTimeout(timer)
@@ -95,12 +95,12 @@ export async function downloadImageAsBase64(url: string): Promise<string> {
         } catch {
           // Canvas tainted by CORS -> resolve local fallback
         }
-        resolve('/company_logo1.jpeg')
+        resolve('/nextsuite.jpeg')
       }
 
       img.onerror = () => {
         clearTimeout(timer)
-        resolve('/company_logo1.jpeg')
+        resolve('/nextsuite.jpeg')
       }
 
       img.src = url
@@ -108,6 +108,6 @@ export async function downloadImageAsBase64(url: string): Promise<string> {
 
     return base64FromCanvas
   } catch {
-    return '/company_logo1.jpeg'
+    return '/nextsuite.jpeg'
   }
 }

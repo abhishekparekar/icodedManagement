@@ -50,7 +50,7 @@ const ICODED_COMPANY: QuotationCompanyInfo = {
   website: 'www.icodedautomation.com',
   instagram: '@icodedautomation',
   taxId: '',
-  logoUrl: '/company_logo1.jpeg',
+  logoUrl: '/nextsuite.jpeg',
   about:
     'iCoded Automation Pvt Ltd is a leading software development company with 55+ successful software products delivered and 70+ satisfied clients across India. We specialize in Android & iOS App Development, Web Development, Custom Software Development, Digital Marketing, Social Media Management, Content Creation, SEO, and Business Automation Solutions. We transform your ideas into powerful digital products.',
 }

@@ -84,12 +84,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <div className="flex h-16 items-center justify-between px-4 border-b border-slate-100 dark:border-slate-800 bg-slate-900 dark:bg-slate-950 rounded-tr-2xl lg:rounded-none">
           <div className="flex items-center gap-3">
             <img
-              src="/company_logo1.jpeg"
+              src="/nextsuite.jpeg"
               alt="Logo"
               className="h-9 w-9 rounded-xl object-cover ring-2 ring-white/20"
             />
             <div>
-              <p className="text-xs font-black text-white uppercase tracking-wider">ICODED AUTOMATION</p>
+              <p className="text-xs font-black text-white uppercase tracking-wider">NextSuite</p>
               <p className="text-[10px] font-extrabold text-brand-400 uppercase tracking-widest">MANAGEMENT SOFTWARE</p>
             </div>
           </div>
